@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/flashcard_question_textview"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:text="Q. Which country has the highest GDP per capita?"
+        android:textSize="40sp"
+        android:gravity="center"
+        android:elevation="5dp"
+        android:textColor="@color/white"
+        android:background="@drawable/card_background"/>
+
+    <TextView
+        android:id="@+id/flashcard_answer_textview"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/card_background"
+        android:gravity="center"
+        android:text="A. Luxembourg"
+        android:textColor="@color/white"
+        android:textSize="40sp"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/answerChoice1_textview"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/flashcard_question_textview"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:background="@color/white"
+        android:elevation="5dp"
+        android:gravity="center"
+        android:text="A. Qatar"
+        android:textColor="@color/black"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/answerChoice2_textview"
+        android:layout_below="@id/answerChoice1_textview"
+        android:layout_marginTop="30dp"
+        android:layout_width="250dp"
+        android:layout_centerHorizontal="true"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:elevation="5dp"
+        android:gravity="center"
+        android:text="B. Luxembourg"
+        android:textColor="@color/black"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/answerChoice3_textview"
+        android:layout_below="@id/answerChoice2_textview"
+        android:layout_marginTop="30dp"
+        android:layout_width="250dp"
+        android:layout_centerHorizontal="true"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:elevation="5dp"
+        android:gravity="center"
+        android:text="C. China"
+        android:textColor="@color/black"
+        android:textSize="30sp" />
+
+    <ImageView
+        android:id="@+id/toggle_choices_visibility_imageview"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="130dp"
+        android:layout_below="@id/answerChoice3_textview"
+        android:src="@drawable/hide_view" />
+</RelativeLayout>
