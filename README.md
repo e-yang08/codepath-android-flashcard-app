@@ -10,7 +10,7 @@ This application allows users to interactively engage by...
 - Hiding multiple choices
 - Resetting all the changes
 
-### App Walk-though
+### App Walk-through
 Below is a gif that animated app walk-through.
 
 <img src="https://im.ezgif.com/tmp/ezgif-1-b8ac953dbb.gif" width=200><br>
