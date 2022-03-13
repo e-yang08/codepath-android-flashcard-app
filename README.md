@@ -13,7 +13,7 @@ This application allows users to interactively engage by...
 ### App Walk-through
 Below is a gif that animated app walk-through.
 
-<img src="https://im.ezgif.com/tmp/ezgif-1-b8ac953dbb.gif" width=200><br>
+<img src="https://i.imgur.com/P033hK2.gif" width=200><br>
 
 ## Required
 - [x] Create New Project in Android Studio
