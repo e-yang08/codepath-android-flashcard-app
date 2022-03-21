@@ -3,7 +3,16 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. codepath-android-flashcard-app/app/src/main/res/layout/activity_main.xml" value="0.11271529888551166" />
+        <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. codepath-android-flashcard-app/app/src/main/res/drawable/card_background.xml" value="0.137" />
+        <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. codepath-android-flashcard-app/app/src/main/res/drawable/hide_view.xml" value="0.1375" />
+        <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. codepath-android-flashcard-app/app/src/main/res/drawable/icon_add.xml" value="0.1375" />
+        <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. codepath-android-flashcard-app/app/src/main/res/drawable/icon_cancel.xml" value="0.1" />
+        <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. codepath-android-flashcard-app/app/src/main/res/drawable/icon_edit.xml" value="0.1375" />
+        <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. codepath-android-flashcard-app/app/src/main/res/drawable/icon_next.xml" value="0.1375" />
+        <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. codepath-android-flashcard-app/app/src/main/res/drawable/icon_save.xml" value="0.1375" />
+        <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. codepath-android-flashcard-app/app/src/main/res/drawable/show_view.xml" value="0.1375" />
+        <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. codepath-android-flashcard-app/app/src/main/res/layout/activity_add_card.xml" value="0.1" />
+        <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. codepath-android-flashcard-app/app/src/main/res/layout/activity_main.xml" value="0.17676767676767677" />
         <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. flashcard/app/src/main/res/drawable/card_background.xml" value="0.128" />
         <entry key="..\:/Users/yukiy/Documents/0. Learn Coding/Codepath/1. flashcard/app/src/main/res/layout/activity_main.xml" value="0.3828571428571429" />
       </map>

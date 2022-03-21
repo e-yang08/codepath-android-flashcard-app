@@ -8,24 +8,28 @@
 
     <TextView
         android:id="@+id/flashcard_question_textview"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:text="Q. Which country has the highest GDP per capita?"
-        android:textSize="40sp"
-        android:gravity="center"
+        android:layout_width="400dp"
+        android:layout_height="180dp"
+        android:background="@drawable/card_background"
         android:elevation="5dp"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
+        android:text="Q. Which country has the highest GDP per capita?"
         android:textColor="@color/white"
-        android:background="@drawable/card_background"/>
+        android:textSize="30sp" />
 
     <TextView
         android:id="@+id/flashcard_answer_textview"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_width="400dp"
+        android:layout_height="180dp"
         android:background="@drawable/card_background"
         android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
         android:text="A. Luxembourg"
         android:textColor="@color/white"
-        android:textSize="40sp"
+        android:textSize="30sp"
         android:visibility="invisible" />
 
     <TextView
@@ -34,11 +38,11 @@
         android:layout_height="50dp"
         android:layout_below="@id/flashcard_question_textview"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="70dp"
         android:background="@color/white"
         android:elevation="5dp"
         android:gravity="center"
-        android:text="A. Qatar"
+        android:text="1. Qatar"
         android:textColor="@color/black"
         android:textSize="30sp" />
 
@@ -52,7 +56,7 @@
         android:background="@color/white"
         android:elevation="5dp"
         android:gravity="center"
-        android:text="B. Luxembourg"
+        android:text="2. Luxembourg"
         android:textColor="@color/black"
         android:textSize="30sp" />
 
@@ -66,16 +70,37 @@
         android:background="@color/white"
         android:elevation="5dp"
         android:gravity="center"
-        android:text="C. China"
+        android:text="3. China"
         android:textColor="@color/black"
         android:textSize="30sp" />
 
     <ImageView
         android:id="@+id/toggle_choices_visibility_imageview"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="130dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@id/answerChoice3_textview"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
         android:src="@drawable/hide_view" />
+
+    <ImageView
+        android:id="@+id/add_button_imageview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp"
+        android:src="@drawable/icon_add" />
+
+    <ImageView
+        android:id="@+id/edit_button_imageview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginBottom="30dp"
+        android:src="@drawable/icon_edit" />
+    
 </RelativeLayout>
