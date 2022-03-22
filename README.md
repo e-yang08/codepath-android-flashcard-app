@@ -16,16 +16,16 @@ This application allows users to interactively use flashcard by...
 ### App Walk-though
 Below are gif which animated app walk-through.
 
-Random display and Saved flashcard data even after relaunch
+- Random display and Saved flashcard data even after relaunch
 <img src="https://i.imgur.com/FPitSTu.gif" width=200><br>
 
-Edit card
+- Edit card
 <img src="https://i.imgur.com/8Rgdfbt.gif" width=200><br>
 
-Empty State and flashcard creation
+- Empty State and flashcard creation
 <img src="https://i.imgur.com/Zz278ps.gif" width=200><br>
 
-No edit alart snackbar
+- No edit alart snackbar
 <img src="https://i.imgur.com/ODCooI6.gif" width=200><br>
 
 ## Required
