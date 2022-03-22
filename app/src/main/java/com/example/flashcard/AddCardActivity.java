@@ -12,11 +12,14 @@ import android.widget.ImageView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Objects;
+
 public class AddCardActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_add_card);
         ImageView cancelButtonImageView = findViewById(R.id.cancel_button_imageview);
         ImageView saveButtonImageView = findViewById(R.id.save_button_imageview);
@@ -34,9 +37,7 @@ public class AddCardActivity extends AppCompatActivity {
         String correctAnswer = getIntent().getStringExtra("correctAnswer");
         String wrongAnswer1 = getIntent().getStringExtra("wrongAnswer1");
         String wrongAnswer2 = getIntent().getStringExtra("wrongAnswer2");
-        System.out.println("Add AAA:"+correctAnswer+"wrong"+wrongAnswer1+"HAHA"+wrongAnswer2);
-
-
+//        System.out.println("Add correct:"+correctAnswer+"wrong1"+wrongAnswer1+"wrong2"+wrongAnswer2);
         questionEditText.setText(question);
         correctAnswerEditText.setText(correctAnswer);
         wrongAnswer1EditText.setText(wrongAnswer1);
@@ -63,10 +64,17 @@ public class AddCardActivity extends AppCompatActivity {
                 if(inputQString.isEmpty() || inputAString.isEmpty() || inputWrongAnswer1String.isEmpty() || inputWrongAnswer2String.isEmpty()) {
                     // show a snackbar message
                     Snackbar.make(saveButtonImageView,
-                            "Please enter all fields to save a flashcard!",
+                            "Please enter all fields before save!",
                             Snackbar.LENGTH_LONG)
                             .show();
-                }else{
+                } else if (Objects.equals(question, inputQString) && Objects.equals(correctAnswer, inputAString)
+                        && Objects.equals(wrongAnswer1, inputWrongAnswer1String) && Objects.equals(wrongAnswer2, inputWrongAnswer2String)){
+                    // when there is no edit made, show a snackbar message
+                    Snackbar.make(saveButtonImageView,
+                            "No change to the flashcard? Click CANCEL button to leave this page.",
+                            Snackbar.LENGTH_LONG)
+                            .show();
+                } else{
                     Intent data = new Intent();
                     data.putExtra("question",inputQString);
                     data.putExtra("correctAnswer",inputAString);

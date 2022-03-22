@@ -1,5 +1,49 @@
 ## Flashcard App
 
+## Lab 3
+
+### App Description
+This application allows users to interactively use flashcard by...
+- Flipping the question and answer cards
+- Choosing an answer from multiple choices
+- Showing the correct / wrong answer(s) by color
+- Hiding and showing multiple choices
+- Adding and saving new flashcard with correponding choices even after relaunch of app
+- Noticing errors when the fields are blank
+- Randomizing the multiple choices' order and flashcards' order
+
+
+### App Walk-though
+Below are gif which animated app walk-through.
+
+Random display and Saved flashcard data even after relaunch
+<img src="https://i.imgur.com/FPitSTu.gif" width=200><br>
+
+Edit card
+<img src="https://i.imgur.com/8Rgdfbt.gif" width=200><br>
+
+Empty State and flashcard creation
+<img src="https://i.imgur.com/Zz278ps.gif" width=200><br>
+
+No edit alart snackbar
+<img src="https://i.imgur.com/ODCooI6.gif" width=200><br>
+
+## Required
+- [x] User can create a card and still see their created card when the app is relaunched.
+- [x] User can create muliple cards and browse through all created cards
+
+## Optional
+- [x] User can delete a card and no longer see it in their deck anymore
+  - [x] Custom: when no flashcard exists, the app shows an empty state with button to create a flashcard
+  - [x] Custom: When there is only one flashcard, remove the previous and next button to shift to other flashcards
+- [x] Flashcards are shown in random order instead of the order they were created in
+- [x] User can edit a card and see the edit saved when they browse through their deck of cards
+  - [x] Custom: Multiple choices are randomly ordered when card is displayed
+- [x] User can create flashcards with multiple answers and be able to browse through cards with multiple choice answers shown
+- [x] Custom: when no edit is made to a card, user will see a snack bar telling to press cancel button
+
+
+
 ## Lab 2
 
 ### App Description
@@ -30,9 +74,9 @@ Below is a gif that animated app walk-through.
 - [x] A notification is shown if the card was created successfully
 - [x] User can also enter multiple choice answers when creating a card
 - [x] App is further styled and customized!
-   - [x] Multiple choices are randomly ordered when card is created
-   - [x] Add / Edit card field displays floating label feedback
-   - [x] Add / Edit card field shows error message when the field is blank 
+   - [x] Custom: Multiple choices are randomly ordered when card is created
+   - [x] Custom: Add / Edit card field displays floating label feedback
+   - [x] Custom: Add / Edit card field shows error message when the field is blank 
 
 
 ## Lab 1
