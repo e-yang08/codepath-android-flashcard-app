@@ -18,7 +18,7 @@ This application allows users to interactively use flashcard by...
 ### App Walk-though
 Here is gif which animated app walk-through.
 
-<img src="https://i.imgur.com/x4f3IRP.gif" width=200>
+<img src="https://i.imgur.com/8ZenB16.gif" width=200>
 
 
 ## Required
