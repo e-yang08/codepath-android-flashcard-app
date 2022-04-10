@@ -1,27 +1,44 @@
 package com.example.flashcard;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.animation.Animator;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
+import android.view.ViewAnimationUtils;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.jetbrains.annotations.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
-import com.google.android.material.snackbar.Snackbar;
+import nl.dionsegijn.konfetti.core.Angle;
+import nl.dionsegijn.konfetti.core.PartyFactory;
+import nl.dionsegijn.konfetti.core.Position;
+import nl.dionsegijn.konfetti.core.Spread;
+import nl.dionsegijn.konfetti.core.emitter.Emitter;
+import nl.dionsegijn.konfetti.core.emitter.EmitterConfig;
+import nl.dionsegijn.konfetti.core.models.Shape;
+import nl.dionsegijn.konfetti.xml.KonfettiView;
 
 public class MainActivity extends AppCompatActivity {
     // global variables able to access variables in all methods of MainActivity
 
     boolean answerChoicesVisible = true; // true if multiple choices are visible
     boolean emptyState = false; // true if empty state is available
-
+    boolean answerShown = false; // true if flashcard's question is hidden and answer is shown
 
     // a list of integer for choice index
     List<Integer> choiceList = Arrays.asList(1,2,3);
@@ -40,7 +57,16 @@ public class MainActivity extends AppCompatActivity {
     List<Flashcard> allFlashcards; // holds a list of flashcards
     Flashcard editedCard;
 
+    CountDownTimer countDownTimer; // count down timer for answering flashcard
 
+    // create a function to (re)start timer
+    private void startTimer() {
+        countDownTimer.cancel();
+        countDownTimer.start();
+    }
+
+    private KonfettiView konfettiView = null;
+    private Shape.DrawableShape drawableShape = null;
 
     // create a function to generate a number in the range [minNumber, maxNumber] -- inclusive
     public int getRandomNumber(int minNumber, int maxNumber) {
@@ -48,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         return rand.nextInt((maxNumber - minNumber) + 1) + minNumber;
     }
 
-    // *
     // create a function to set multiple choices
     public int setMultipleChoice (TextView choice1, TextView choice2, TextView choice3,
                                   String correctAnswer, String wrongAnswer1,
@@ -97,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.setTitle("Flashcard");
 
 //        System.out.println("before: correct"+correctChoiceIndexInt+"wrong1"+wrongChoice1IndexInt+"wrong2"+wrongChoice2IndexInt);
 
@@ -107,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
         TextView answerChoice3TextView = findViewById(R.id.answerChoice3_textview);
         TextView createFirstCardTextView = findViewById(R.id.create_flashcard_textview);
         TextView emptyStateTextView = findViewById(R.id.empty_state_textview);
+        TextView countDownTimerTextView = findViewById(R.id.timer);
 
         ImageView toggleImageView = findViewById(R.id.toggle_choices_visibility_imageview);
         ImageView addQuestionImageView = findViewById(R.id.add_button_imageview);
@@ -119,6 +146,48 @@ public class MainActivity extends AppCompatActivity {
         // after application is initialized, fetch updated flashcards
         flashcardDatabase = new FlashcardDatabase(getApplicationContext()); // or this
         allFlashcards = flashcardDatabase.getAllCards();
+
+        // initialize the countdown timer - * start timerの前？後？or doesn't matter?
+        countDownTimer = new CountDownTimer(16000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                countDownTimerTextView.setText("" + millisUntilFinished / 1000); // every 1 sec, time is updated
+            }
+            public void onFinish() {
+                // show snack bar
+                Snackbar.make(countDownTimerTextView,
+                            "TIME'S UP" +("\uD83D\uDEA8"),
+                            Snackbar.LENGTH_LONG)
+                            .show();
+
+                // remove the reveal animation and use card flip
+                // get the center for the clipping circle
+                int cx = flashcardATextView.getWidth() / 2;
+                int cy = flashcardATextView.getHeight() / 2;
+
+                // get the final radius for the clipping circle
+                float finalRadius = (float) Math.hypot(cx, cy);
+
+                // create the animator for this view (the start radius is zero)
+                // reveal gradually from the center
+                Animator anim = ViewAnimationUtils.createCircularReveal(flashcardATextView, cx, cy, 0f, finalRadius);
+
+                // hide the question and show the answer to prepare for playing the animation!
+                flashcardQTextView.setVisibility(View.INVISIBLE);
+                flashcardATextView.setVisibility(View.VISIBLE);
+                anim.setDuration(500);
+                anim.start();
+
+                countDownTimer.cancel();
+                countDownTimerTextView.setVisibility(View.INVISIBLE);
+
+                answerShown = true;
+            }
+        };
+
+        // prepare confetti
+        final Drawable drawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.shape_heart);
+        drawableShape = new Shape.DrawableShape(drawable, true);
+        konfettiView = findViewById(R.id.konfettiView);
 
         // if there is no card
         if (allFlashcards.size() == 0) {
@@ -137,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
             nextQuestionImageView.setVisibility(View.INVISIBLE);
             prevQuestionImageView.setVisibility(View.INVISIBLE);
             deleteQuestionImageView.setVisibility(View.INVISIBLE);
+            countDownTimerTextView.setVisibility(View.INVISIBLE);
             answerChoicesVisible = false;
             emptyState = true;
 
@@ -146,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 prevQuestionImageView.setVisibility(View.INVISIBLE);
                 emptyState = false;
             }
+
 
         // if flashcards exist, display the saved flashcard
         if (allFlashcards != null && allFlashcards.size() > 0) {
@@ -164,14 +235,86 @@ public class MainActivity extends AppCompatActivity {
             setMultipleChoice (answerChoice1TextView, answerChoice2TextView,
                     answerChoice3TextView, firstCard.getAnswer(),
                     firstCard.getWrongAnswer1(),firstCard.getWrongAnswer2());
+
+            // start timer upon opening the app
+            startTimer();
         }
 
         // tap on question card to show the answer of flashcard
+        // with the flip animation
         flashcardQTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flashcardQTextView.setVisibility(View.INVISIBLE);
-                flashcardATextView.setVisibility(View.VISIBLE);
+//                // remove the reveal animation and use card flip
+//                // get the center for the clipping circle
+//                int cx = flashcardATextView.getWidth() / 2;
+//                int cy = flashcardATextView.getHeight() / 2;
+//
+//                // get the final radius for the clipping circle
+//                float finalRadius = (float) Math.hypot(cx, cy);
+//
+//                // create the animator for this view (the start radius is zero)
+//                // reveal gradually from the center
+//                Animator anim = ViewAnimationUtils.createCircularReveal(flashcardATextView, cx, cy, 0f, finalRadius);
+//
+//                // hide the question and show the answer to prepare for playing the animation!
+//                flashcardQTextView.setVisibility(View.INVISIBLE);
+//                flashcardATextView.setVisibility(View.VISIBLE);
+//                anim.setDuration(500);
+//                anim.start();
+
+                countDownTimer.cancel();
+                countDownTimerTextView.setVisibility(View.INVISIBLE);
+
+                answerShown = true;
+
+//                flashcardQTextView.animate()
+//                        .rotationY(90)
+//                        .setDuration(200)
+//                        .withEndAction(                         // chain two actions
+//                                new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        answerShown = true;
+//                                        flashcardATextView.setVisibility(View.VISIBLE);
+//                                        flashcardQTextView.setVisibility(View.INVISIBLE);
+//                                        // second quarter turn
+//                                        flashcardATextView.setRotationY(-90);
+//                                        flashcardATextView.animate()
+//                                                .rotationY(0)
+//                                                .setDuration(200)
+//                                                .start();
+//                                    }
+//                                }
+//                        ).start();
+
+                // adjust the size
+                flashcardQTextView.setCameraDistance(40000);
+                flashcardATextView.setCameraDistance(40000);
+
+                flashcardQTextView.animate()
+                        .rotationY(90)
+                        .setDuration(200)
+                        .withEndAction(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        flashcardQTextView.setVisibility(View.INVISIBLE);
+                                        flashcardATextView.setVisibility(View.VISIBLE);
+                                        flashcardATextView.setRotationY(-90);
+                                        flashcardQTextView.setRotationY(0);
+                                    }
+                                }
+                        )
+                        .start();
+
+                flashcardATextView.animate()
+                        .rotationY(0)
+                        .setDuration(200)
+                        .setStartDelay(200)
+                        .start();
+
+
             }
         });
 
@@ -179,8 +322,36 @@ public class MainActivity extends AppCompatActivity {
         flashcardATextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flashcardATextView.setVisibility(View.INVISIBLE);
-                flashcardQTextView.setVisibility(View.VISIBLE);
+
+                answerShown = false;
+                startTimer();
+                countDownTimerTextView.setVisibility(View.VISIBLE);
+
+                // adjust the size
+                flashcardQTextView.setCameraDistance(40000);
+                flashcardATextView.setCameraDistance(40000);
+
+                flashcardATextView.animate()
+                        .rotationY(-90)
+                        .setDuration(200)
+                        .withEndAction(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        flashcardATextView.setVisibility(View.INVISIBLE);
+                                        flashcardQTextView.setVisibility(View.VISIBLE);
+                                        flashcardQTextView.setRotationY(90);
+                                        flashcardATextView.setRotationY(0);
+                                    }
+                                }
+                                )
+                        .start();
+
+                flashcardQTextView.animate()
+                        .rotationY(0)
+                        .setDuration(200)
+                        .setStartDelay(200)
+                        .start();
             }
         });
 
@@ -196,6 +367,8 @@ public class MainActivity extends AppCompatActivity {
                     answerChoice1TextView.setBackgroundColor(getResources().getColor(R.color.green, null));
                     answerChoice2TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
                     answerChoice3TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+                    // confetti
+                    parade();
                 } else if (correctChoiceIndexInt == 2){
                     answerChoice1TextView.setBackgroundColor(getResources().getColor(R.color.sheer_red, null));
                     answerChoice2TextView.setBackgroundColor(getResources().getColor(R.color.green, null));
@@ -219,6 +392,7 @@ public class MainActivity extends AppCompatActivity {
                     answerChoice1TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
                     answerChoice2TextView.setBackgroundColor(getResources().getColor(R.color.green, null));
                     answerChoice3TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+                    parade();
                 } else {
                     answerChoice1TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
                     answerChoice2TextView.setBackgroundColor(getResources().getColor(R.color.sheer_red, null));
@@ -242,6 +416,7 @@ public class MainActivity extends AppCompatActivity {
                     answerChoice1TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
                     answerChoice2TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
                     answerChoice3TextView.setBackgroundColor(getResources().getColor(R.color.green, null));
+                    parade();
                 }
             }
         });
@@ -272,21 +447,24 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (!emptyState){
 
-                //set multiple choices' visibility
-                answerChoicesVisible = true;
-                answerChoice1TextView.setVisibility(View.VISIBLE);
-                answerChoice2TextView.setVisibility(View.VISIBLE);
-                answerChoice3TextView.setVisibility(View.VISIBLE);
-                toggleImageView.setImageResource(R.drawable.hide_view);
+                    //set multiple choices' visibility
+                    answerChoicesVisible = true;
+                    answerChoice1TextView.setVisibility(View.VISIBLE);
+                    answerChoice2TextView.setVisibility(View.VISIBLE);
+                    answerChoice3TextView.setVisibility(View.VISIBLE);
+                    toggleImageView.setImageResource(R.drawable.hide_view);
 
-                // set Question and answer cards' visibility
-                flashcardATextView.setVisibility(View.INVISIBLE);
-                flashcardQTextView.setVisibility(View.VISIBLE);
+//                    // set Question and answer cards' visibility
+//                    flashcardATextView.setVisibility(View.INVISIBLE);
+//                    flashcardQTextView.setVisibility(View.VISIBLE);
 
-                //set multiple choices' color
-                answerChoice1TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
-                answerChoice2TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
-                answerChoice3TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+                    //set multiple choices' color
+                    answerChoice1TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+                    answerChoice2TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+                    answerChoice3TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+
+                    // start timer
+                    startTimer();
                 }
             }
         });
@@ -297,6 +475,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AddCardActivity.class);
                 startActivityForResult(intent, addCARD_REQUEST_CODE);
+                overridePendingTransition(R.anim.right_in, R.anim.left_out);
             }
         });
 
@@ -306,6 +485,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AddCardActivity.class);
                 startActivityForResult(intent, firstCARD_REQUEST_CODE);
+                overridePendingTransition(R.anim.right_in, R.anim.left_out);
             }
         });
 
@@ -332,6 +512,7 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("wrongAnswer2",answerChoice2TextView.getText().toString().substring(3));
                 }
                 startActivityForResult(intent, editCARD_REQUEST_CODE);
+                overridePendingTransition(R.anim.right_in, R.anim.left_out);
             }
         });
 
@@ -354,6 +535,65 @@ public class MainActivity extends AppCompatActivity {
 
                 nowDisplayedCardIndexInt = cardToDisplayIndex;
 
+                final Animation leftOutAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.left_out);
+                final Animation rightInAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.right_in);
+
+
+                if (answerShown) {
+                    flashcardATextView.startAnimation(leftOutAnim);
+                }
+                else{
+                    flashcardQTextView.startAnimation(leftOutAnim);
+                }
+
+                leftOutAnim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        // this method is called when the animation first starts
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        // this method is called when the animation is finished playing
+                        Flashcard currentCard = allFlashcards.get(nowDisplayedCardIndexInt);
+
+                        // set the question and answer TextViews with data from the database
+                        flashcardQTextView.setText("Q. "+currentCard.getQuestion());
+                        flashcardATextView.setText("A. "+currentCard.getAnswer());
+
+                        if (answerShown) {
+                            // Switch back to showing question
+                            flashcardATextView.setVisibility(View.INVISIBLE);
+                            flashcardQTextView.animate().rotationY(0).setDuration(0).start();
+                            flashcardQTextView.setVisibility(View.VISIBLE);
+                            countDownTimerTextView.setVisibility(View.VISIBLE);
+                            answerShown = false;
+                        }
+
+                        // set multiple choices
+                        setMultipleChoice (answerChoice1TextView, answerChoice2TextView,
+                                answerChoice3TextView, currentCard.getAnswer(),
+                                currentCard.getWrongAnswer1(),currentCard.getWrongAnswer2());
+
+                        // start the next animation
+                        flashcardQTextView.startAnimation(rightInAnim);
+
+                        // start timer
+                        startTimer();
+
+                        // reset the background color of multiple choices
+                        answerChoice1TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+                        answerChoice2TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+                        answerChoice3TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                        // we don't need to worry about this method
+                    }
+                });
+
+
 //                // make sure we don't get an IndexOutOfBoundsError if we are viewing the last indexed card in our list
 //                if(nowDisplayedCardIndexInt >= allFlashcards.size()) {
 //                    Snackbar.make(v,
@@ -362,18 +602,6 @@ public class MainActivity extends AppCompatActivity {
 //                            .show();
 //                    nowDisplayedCardIndexInt = 0; // reset index to go back to the beginning
 //                };
-
-                // get currently displayed flashcard's info
-                Flashcard currentCard = allFlashcards.get(nowDisplayedCardIndexInt);
-
-                // set the question and answer TextViews with data from the database
-                flashcardQTextView.setText("Q. "+currentCard.getQuestion());
-                flashcardATextView.setText("A. "+currentCard.getAnswer());
-
-                // set multiple choices
-                setMultipleChoice (answerChoice1TextView, answerChoice2TextView,
-                        answerChoice3TextView, currentCard.getAnswer(),
-                        currentCard.getWrongAnswer1(),currentCard.getWrongAnswer2());
 
             }});
 
@@ -387,7 +615,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                // initialize currently displayed card's inex
+                // initialize currently displayed card's index
                 int cardToDisplayIndex2 = getRandomNumber(0, allFlashcards.size() - 1);
 
                 // find another card if the next card is the same as the current displayed one
@@ -397,18 +625,62 @@ public class MainActivity extends AppCompatActivity {
 
                 nowDisplayedCardIndexInt = cardToDisplayIndex2;
 
-                // get currently displayed flashcard's info
-                Flashcard currentCard = allFlashcards.get(nowDisplayedCardIndexInt);
+                final Animation leftInAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.left_in);
+                final Animation rightOutAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.right_out);
 
-                // set the question and answer TextViews with data from the database
-                flashcardQTextView.setText("Q. "+currentCard.getQuestion());
-                flashcardATextView.setText("A. "+currentCard.getAnswer());
+                if (answerShown) {
+                    flashcardATextView.startAnimation(rightOutAnim);
+                }
+                else{
+                    flashcardQTextView.startAnimation(rightOutAnim);
+                }
 
-                // set multiple choices
-                setMultipleChoice (answerChoice1TextView, answerChoice2TextView,
-                        answerChoice3TextView, currentCard.getAnswer(),
-                        currentCard.getWrongAnswer1(),currentCard.getWrongAnswer2());
+                rightOutAnim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        // this method is called when the animation first starts
+                    }
 
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        // this method is called when the animation is finished playing
+                        Flashcard currentCard = allFlashcards.get(nowDisplayedCardIndexInt);
+
+                        // set the question and answer TextViews with data from the database
+                        flashcardQTextView.setText("Q. "+currentCard.getQuestion());
+                        flashcardATextView.setText("A. "+currentCard.getAnswer());
+
+                        if (answerShown) {
+                            flashcardATextView.setVisibility(View.INVISIBLE);
+                            flashcardQTextView.setVisibility(View.VISIBLE);
+                            flashcardQTextView.setRotationY(0);
+                            answerShown = false;
+                        }
+
+                        // set multiple choices
+                        setMultipleChoice (answerChoice1TextView, answerChoice2TextView,
+                                answerChoice3TextView, currentCard.getAnswer(),
+                                currentCard.getWrongAnswer1(),currentCard.getWrongAnswer2());
+
+                        // start the moving-previous-card animation
+                        flashcardQTextView.startAnimation(leftInAnim);
+
+                        // start timer
+                        startTimer();
+
+
+                        // reset the background color of multiple choices
+                        answerChoice1TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+                        answerChoice2TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+                        answerChoice3TextView.setBackgroundColor(getResources().getColor(R.color.white, null));
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                        // we don't need to worry about this method
+                    }
+                });
             }});
 
         // delete question
@@ -433,6 +705,7 @@ public class MainActivity extends AppCompatActivity {
                     nextQuestionImageView.setVisibility(View.INVISIBLE);
                     prevQuestionImageView.setVisibility(View.INVISIBLE);
                     deleteQuestionImageView.setVisibility(View.INVISIBLE);
+                    countDownTimerTextView.setVisibility(View.INVISIBLE);
                     answerChoicesVisible = false;
 
                     // show empty state
@@ -468,9 +741,35 @@ public class MainActivity extends AppCompatActivity {
                         nextQuestionImageView.setVisibility(View.INVISIBLE);
                         prevQuestionImageView.setVisibility(View.INVISIBLE);
                     }
+
+                    // start timer
+                    startTimer();
             }}
         });
 
+    }
+
+    // from https://github.com/DanielMartinus/Konfetti
+    public void parade() {
+        EmitterConfig emitterConfig = new Emitter(3, TimeUnit.SECONDS).perSecond(40);
+        konfettiView.start(
+                new PartyFactory(emitterConfig)
+                        .angle(Angle.RIGHT - 45)
+                        .spread(Spread.SMALL)
+                        .shapes(Arrays.asList(Shape.Square.INSTANCE, Shape.Circle.INSTANCE, drawableShape))
+                        .colors(Arrays.asList(0xfce18a, 0xff726d, 0xf4306d, 0xb48def))
+                        .setSpeedBetween(10f, 30f)
+                        .position(new Position.Relative(0.0, 0.5))
+                        .build(),
+                new PartyFactory(emitterConfig)
+                        .angle(Angle.LEFT + 45)
+                        .spread(Spread.SMALL)
+                        .shapes(Arrays.asList(Shape.Square.INSTANCE, Shape.Circle.INSTANCE, drawableShape))
+                        .colors(Arrays.asList(0xfce18a, 0xff726d, 0xf4306d, 0xb48def))
+                        .setSpeedBetween(10f, 30f)
+                        .position(new Position.Relative(1.0, 0.5))
+                        .build()
+        );
     }
 
     @Override
@@ -485,6 +784,7 @@ public class MainActivity extends AppCompatActivity {
         TextView answerChoice1TextView = findViewById(R.id.answerChoice1_textview);
         TextView answerChoice2TextView = findViewById(R.id.answerChoice2_textview);
         TextView answerChoice3TextView = findViewById(R.id.answerChoice3_textview);
+        TextView countDownTimerTextView= findViewById(R.id.timer);
 
         ImageView toggleImageView = findViewById(R.id.toggle_choices_visibility_imageview);
         ImageView addQuestionImageView = findViewById(R.id.add_button_imageview);
@@ -513,6 +813,7 @@ public class MainActivity extends AppCompatActivity {
 
             // when resultCode == RESULT_OK
             if (requestCode == addCARD_REQUEST_CODE) {
+
                 // set multiple choices
                 // based on the shuffled result, set choices in corresponding textview
                 setMultipleChoice (answerChoice1TextView, answerChoice2TextView,
@@ -539,6 +840,9 @@ public class MainActivity extends AppCompatActivity {
                     prevQuestionImageView.setVisibility(View.VISIBLE);
                 }
 
+                // start timer
+                startTimer();
+
             } else if (requestCode == editCARD_REQUEST_CODE){
                 // update card
                 editedCard.setQuestion(questionString);
@@ -561,6 +865,9 @@ public class MainActivity extends AppCompatActivity {
                         Snackbar.LENGTH_SHORT)
                         .show();
 
+                // start timer
+                startTimer();
+
             } else if (requestCode == firstCARD_REQUEST_CODE){
                 emptyStateImageView.setVisibility(View.INVISIBLE);
                 emptyStateTextView.setVisibility(View.INVISIBLE);
@@ -576,6 +883,7 @@ public class MainActivity extends AppCompatActivity {
                 addQuestionImageView.setVisibility(View.VISIBLE);
                 editQuestionImageView.setVisibility(View.VISIBLE);
                 deleteQuestionImageView.setVisibility(View.VISIBLE);
+                countDownTimerTextView.setVisibility(View.VISIBLE);
 
                 // show a snackbar message
                 Snackbar.make(flashcardQTextView,
@@ -594,6 +902,9 @@ public class MainActivity extends AppCompatActivity {
                 setMultipleChoice (answerChoice1TextView, answerChoice2TextView,
                         answerChoice3TextView, correctAnswerString,
                         wrongAnswer1String,wrongAnswer2String);
+
+                // start timer
+                startTimer();
             }
         }
     }

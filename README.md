@@ -1,6 +1,45 @@
 ## Flashcard App
 
+## Lab 4
+
+### App Description
+This application allows users to interactively use flashcard by...
+- Flipping the question and answer cards
+- Choosing an answer from multiple choices
+- Showing the correct / wrong answer(s) by color
+- Hiding and showing multiple choices
+- Adding and saving new flashcard with correponding choices even after relaunch of app
+- Noticing errors when the fields are blank
+- Randomizing the multiple choices' order and flashcards' order
+- Showing the countdown timer
+- Showing confetti when getting the correct choice
+- Including flip animation
+
+### App Walk-though
+Here is gif which animated app walk-through.
+
+<img src="https://i.imgur.com/x4f3IRP.gif" width=200>
+
+
+## Required
+- [x] User sees a transition animation when going from the main screen to the add card screen.
+- [x] User sees a reveal animation when the flashcard is tapped and the answer is shown
+- [x] User sees flashcards animating in / out when the 'next' button is tapped
+
+## Optional
+- [x] Extra styling is added!
+- [x] User sees a countdown timer for each question
+- [x] User sees a 'card flip' animation when the card is tapped
+- [x] User sees a celebration animation with confetti when they answer a question correctly
+- [x] Custom: User sees flashcards animating in / out when the 'prev' button is tapped
+- [x] Custom: Timer is stopped and hidden when card is flipped
+- [x] Custom: When the countdown timer reaches 0 second, the answer card is revealed with animation automatically
+- [x] Custom: When the countdown timer reaches 0 second, snack bar with a "time's up" message appears
+- [x] Custom: Change the application launcher
+
+
 ## Lab 3
+
 
 ### App Description
 This application allows users to interactively use flashcard by...
